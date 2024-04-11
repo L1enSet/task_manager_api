@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import DailyList, Task
 
-# Register your models here.
+admin.site.register(DailyList)
+admin.site.register(Task)
