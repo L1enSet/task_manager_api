@@ -1,15 +1,9 @@
 from rest_framework import serializers
-from .models import Task, DailyList
-
-
-class DailyListSerializer(serializers.ModelSerializer):
-    owner = serializers.HiddenField(default=(serializers.CurrentUserDefault))
-    class Meta:
-        model = DailyList
-        fields = ['id', 'create_date', 'date', 'comment', 'owner']
+from .models import Task
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Task
-        fields = ['id', 'title', 'text', 'create_date', 'deadline', 'daily_container', 'owner']
+        fields = ['id', 'title', 'text', 'create_date', 'deadline', 'owner', 'is_complete']

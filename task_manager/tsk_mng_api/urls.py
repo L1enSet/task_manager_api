@@ -1,8 +1,7 @@
 from rest_framework.routers import SimpleRouter
-from .views import DailyListApiView, TaskApiView
+from .views import TaskApiView
 
 router = SimpleRouter()
-router.register('daily', DailyListApiView)
-router.register('task', TaskApiView)
+router.register('task', TaskApiView, basename='task')
 
 urlpatterns = router.urls

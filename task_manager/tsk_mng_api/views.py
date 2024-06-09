@@ -1,28 +1,38 @@
 from django.shortcuts import render
-from .models import DailyList, Task
-from .serializers import DailyListSerializer, TaskSerializer
+from .models import Task
+from .serializers import TaskSerializer
+from datetime import datetime
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 
-class DailyListApiView(ModelViewSet):
-    queryset = DailyList.objects.all()
-    serializer_class = DailyListSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+class TaskApiView(ModelViewSet):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
 
-    @action(detail=True, methods=['get'], name='view_tsk')
-    def get_tsk(self, request, pk=None):
-        obj = self.get_object()
-        queryset = Task.objects.filter(daily_container=obj.id)
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user)
+
+    @action(methods=['get'], detail=False, name='to_day_create')
+    def new_tsk(self, request):
+        queryset = Task.objects.filter(is_complete=False).order_by("-create_date")
         serializer = TaskSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(methods=['get'], detail=False, name='to_day_dead')
+    def to_day_dead(self, request):
+        dt_now = datetime.now().date()
+        queryset = Task.objects.filter(deadline=dt_now, is_complete=False)
+        serializer = TaskSerializer(queryset, many=True)
+        return Response(serializer.data)
 
-class TaskApiView(ModelViewSet):
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    @action(methods=['get'], detail=False, name='complete')
+    def complete(self, request):
+        queryset = Task.objects.filter(is_complete=True)
+        serializer = TaskSerializer(queryset, many=True)
+        return Response(serializer.data)
 
